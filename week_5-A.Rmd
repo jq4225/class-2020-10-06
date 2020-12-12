@@ -12,6 +12,13 @@ library(tidyverse)
 ### Scene 1
 
 **Prompt:** Create a graphic of the posterior distribution of the [538 forecast](https://projects.fivethirtyeight.com/2020-election-forecast/) for Biden's electoral vote total. Recall the example given in Chapter 5 of *The Primer*.
+```{r}
+polls <- read_csv("data_538/election-forecasts-2020/presidential_ev_probabilities_2020.csv")
+
+polls %>%
+  ggplot(aes(x = total_ev, y = evprob_chal)) + geom_col()
+```
+
 
 
 
@@ -21,9 +28,15 @@ library(tidyverse)
 
 a) Create an ideal Preceptor Table which examines the causal effect of a proposed advertising campaign on Biden's electoral votes from Wisconsin. 
 
+Electoral percentages before and after advertising (with and without and with the difference)
+
 b) Assume that Biden implements the campaign, create the actual Preceptor Table which we will see after the election.
 
+We can just see the end result of the ad campaign on votes and then we don't know the alternative.
+
 c) What does the actual Preceptor Table look like now?
+
+Right now we know neither -- we just know poll data
 
 
 
@@ -34,14 +47,39 @@ c) What does the actual Preceptor Table look like now?
 
 
 a) What is the probability that Biden wins more than 300 electoral votes?
+```{r}
+polls %>%
+  filter(total_ev > 300) %>%
+  summarize(probability = sum(evprob_chal))
+```
+
 
 b) What is the probability that Biden wins exactly 531 electoral votes? Is this answer consistent with your answer in a)?
+```{r}
+polls %>%
+  filter(total_ev == 531) %>%
+  summarize(probability = sum(evprob_chal))
+```
+
 
 c) What is the probability of a "very close" election, defined as Biden winning between 269 and 289 electoral votes, inclusive?
+```{r}
+polls %>%
+  filter(total_ev >= 269 & total_ev <= 289) %>%
+  summarize(probability = sum(evprob_chal))
+```
+
 
 d) How many unique electoral vote totals does 538 view as impossible for Biden to achieve? Some of these are truly impossible. Given an example of one of these. Why does 538 think that some vote totals, while theoretically possible, should be given zero probability in its posterior?
+```{r}
+polls %>%
+  filter(evprob_chal == 0) %>%
+  select(total_ev) %>%
+  summarize(number = n())
+```
 
 
+538 deems it impossible to reach some vote totals that are extremely low or extremely high, just because the probabilities are so low that they approach zero even if they do not actually reach it. SOme vote totals are mathematically impossible to get as a sum of different states.
 
 
 ### Scene 4
